@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mt-3">
+    <div>
+        <h2 class="mb-0">All Classes</h2>
+        <p class="text-muted mb-0">Every class registered in the system</p>
+    </div>
+    <a href="{{ url_for('admin_attendance') }}" class="btn btn-outline-primary">View Attendance</a>
+</div>
+<hr>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        {% if classes %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Class Name</th>
+                        <th>Course Code</th>
+                        <th>Teacher</th>
+                        <th>Sessions</th>
+                        <th>Attendance</th>
+                        <th>Created</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in classes %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ c.name }}</td>
+                        <td>{{ c.course_code }}</td>
+                        <td>{{ c.teacher.name if c.teacher else '-' }}</td>
+                        <td>{{ c.sessions|length }}</td>
+                        <td>{{ c.sessions|map(attribute='attendances')|map('length')|sum }}</td>
+                        <td>{{ c.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_attendance', class_id=c.id) }}"
+                                class="btn btn-sm btn-outline-primary">Attendance</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-4 text-center text-muted">No classes created yet.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

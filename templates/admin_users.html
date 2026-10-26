@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mt-3">
+    <div>
+        <h2 class="mb-0">User Management</h2>
+        <p class="text-muted mb-0">Create, disable, reset passwords or delete accounts</p>
+    </div>
+</div>
+<hr>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">Create Account</div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin_create_user') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="name" class="form-control" minlength="2" maxlength="100"
+                            pattern="[A-Za-z][A-Za-z .'\-]*"
+                            title="Letters, spaces, apostrophes, hyphens and dots only" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" maxlength="120" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" minlength="8" maxlength="128"
+                            pattern="(?=.*[A-Za-z])(?=.*\d).{8,}"
+                            title="At least 8 characters, including a letter and a number" required>
+                        <small class="text-muted">At least 8 characters, with a letter and a number</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Role</label>
+                        <select name="role" class="form-select" required>
+                            <option value="">Select role</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="student">Student</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary w-100">Create Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">All Users</div>
+            <div class="card-body">
+                <form method="GET" class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <input type="text" name="q" class="form-control" placeholder="Search name or email"
+                            value="{{ search }}">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="role" class="form-select">
+                            <option value="">All roles</option>
+                            <option value="admin" {% if role_filter=='admin' %}selected{% endif %}>Admin</option>
+                            <option value="teacher" {% if role_filter=='teacher' %}selected{% endif %}>Teacher</option>
+                            <option value="student" {% if role_filter=='student' %}selected{% endif %}>Student</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-primary w-100">Filter</button>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('admin_users') }}" class="btn btn-outline-secondary w-100">Reset</a>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th style="min-width: 210px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                            <tr>
+                                <td>{{ u.name }}</td>
+                                <td>{{ u.email }}</td>
+                                <td>
+                                    {% if u.role == 'admin' %}
+                                    <span class="badge bg-dark">Admin</span>
+                                    {% elif u.role == 'teacher' %}
+                                    <span class="badge bg-primary">Teacher</span>
+                                    {% else %}
+                                    <span class="badge bg-info text-dark">Student</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if u.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Disabled</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <form method="POST" action="{{ url_for('admin_toggle_user', user_id=u.id) }}">
+                                            <button class="btn btn-sm btn-outline-{{ 'danger' if u.is_active else 'success' }}">
+                                                {{ 'Disable' if u.is_active else 'Enable' }}
+                                            </button>
+                                        </form>
+                                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal"
+                                            data-bs-target="#pwModal{{ u.id }}">Password</button>
+                                        <form method="POST" action="{{ url_for('admin_delete_user', user_id=u.id) }}"
+                                            onsubmit="return confirm('Delete {{ u.email }}? This cannot be undone.');">
+                                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </div>
+
+                                    <div class="modal fade" id="pwModal{{ u.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <form method="POST"
+                                                    action="{{ url_for('admin_reset_password', user_id=u.id) }}">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Reset password — {{ u.name }}</h5>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <label class="form-label">New Password</label>
+                                                        <input type="password" name="password" class="form-control"
+                                                            minlength="8" maxlength="128"
+                                                            pattern="(?=.*[A-Za-z])(?=.*\d).{8,}"
+                                                            title="At least 8 characters, including a letter and a number"
+                                                            required>
+                                                        <small class="text-muted">At least 8 characters, with a letter
+                                                            and a number</small>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Cancel</button>
+                                                        <button class="btn btn-primary">Save Password</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No users found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <small class="text-muted">{{ users|length }} user(s)</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

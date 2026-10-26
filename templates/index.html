@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center mt-5">
+    {% if brand.logo_url %}
+    <img src="{{ brand.logo_url }}" alt="{{ brand.institution_name }} logo" style="max-height: 90px;"
+        class="mb-3">
+    {% endif %}
+    <h1 class="display-5 fw-bold">{{ brand.institution_name }}</h1>
+    <p class="lead mt-3">QR Code Attendance System &mdash; rotating codes, secure, fast and mobile-first.</p>
+
+    {% if session.get('user_id') %}
+    <div class="mt-4">
+        <a href="{{ url_for('index') }}" class="btn btn-brand btn-lg">Go to Dashboard</a>
+    </div>
+    {% else %}
+    <div class="row justify-content-center g-3 mt-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Administrator</h5>
+                    <p class="card-text text-muted">University staff who manage accounts, classes and reports.</p>
+                    <a href="{{ url_for('admin_login') }}" class="btn btn-outline-dark w-100">Admin Login</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Lecturer</h5>
+                    <p class="card-text text-muted">Start attendance sessions and display the live QR code.</p>
+                    <a href="{{ url_for('teacher_login') }}" class="btn btn-brand w-100">Lecturer Login</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Student</h5>
+                    <p class="card-text text-muted">Scan the QR code to mark your attendance.</p>
+                    <a href="{{ url_for('student_login') }}" class="btn btn-outline-primary w-100">Student Login</a>
+                    <a href="{{ url_for('student_register') }}"
+                        class="btn btn-link w-100 mt-1">Create student account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="text-muted mt-4 small">Each role has its own private login link.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mt-3">
+    <div>
+        <h2 class="mb-0">Admin Control Panel</h2>
+        <p class="text-muted mb-0">Full control over users, classes and attendance</p>
+    </div>
+</div>
+<hr>
+
+<div class="row g-3">
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Teachers</div>
+                <div class="display-6 fw-bold">{{ stats.teachers }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Students</div>
+                <div class="display-6 fw-bold">{{ stats.students }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Classes</div>
+                <div class="display-6 fw-bold">{{ stats.classes }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Sessions</div>
+                <div class="display-6 fw-bold">{{ stats.sessions }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm h-100 border-success">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Attendance Records</div>
+                <div class="display-6 fw-bold text-success">{{ stats.attendance }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card shadow-sm h-100 border-danger">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Disabled Accounts</div>
+                <div class="display-6 fw-bold text-danger">{{ stats.disabled }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex flex-wrap gap-2 align-items-center">
+                <a href="{{ url_for('admin_users') }}" class="btn btn-outline-primary flex-fill">Manage Users</a>
+                <a href="{{ url_for('admin_classes') }}" class="btn btn-outline-primary flex-fill">All Classes</a>
+                <a href="{{ url_for('admin_attendance') }}" class="btn btn-outline-primary flex-fill">Attendance</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-dark text-white">Latest Check-ins</div>
+            <div class="card-body p-0">
+                {% if recent_attendance %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Class</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in recent_attendance %}
+                            <tr>
+                                <td>{{ a.student.name }}</td>
+                                <td>{{ a.session.class_.course_code }}</td>
+                                <td>
+                                    {% if a.status == 'late' %}
+                                    <span class="badge bg-warning text-dark">Late</span>
+                                    {% else %}
+                                    <span class="badge bg-success">Present</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ a.marked_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="p-4 text-center text-muted">No attendance yet.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-dark text-white">Recent Sessions</div>
+            <div class="card-body p-0">
+                {% if recent_sessions %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Teacher</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in recent_sessions %}
+                            <tr>
+                                <td>{{ s.class_.course_code }}</td>
+                                <td>{{ s.teacher.name }}</td>
+                                <td>
+                                    {% if s.status == 'active' %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Ended</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="p-4 text-center text-muted">No sessions yet.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

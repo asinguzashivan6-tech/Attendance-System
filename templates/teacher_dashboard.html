@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mt-3">
+    <h2>Teacher Dashboard</h2>
+</div>
+<hr>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">Create New Class</div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('create_class') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Class Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="e.g. Software Engineering" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Course Code</label>
+                        <input type="text" name="course_code" class="form-control" placeholder="e.g. SE210" required>
+                    </div>
+                    <button class="btn btn-primary w-100">Create Class</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">My Classes</div>
+            <div class="card-body p-0">
+                {% if classes %}
+                <div class="list-group list-group-flush">
+                    {% for c in classes %}
+                    <a href="{{ url_for('class_view', class_id=c.id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">{{ c.name }}</h6>
+                            <small class="text-muted">Course Code: {{ c.course_code }} | Created: {{ c.created_at.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <span class="btn btn-sm btn-outline-primary">View Sessions</span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-4 text-center text-muted">
+                    You haven't created any class yet. Create one on the left.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

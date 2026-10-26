@@ -1,0 +1,25 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+
+# Secrets and local config
+.env
+
+# Database (never commit real attendance data)
+instance/
+*.db
+*.sqlite3
+
+# Generated uploads / QR images
+static/qr/*
+!static/qr/.gitkeep
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Editor / OS noise
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+*.log
