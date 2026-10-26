@@ -934,11 +934,18 @@ def get_local_ip():
         s.close()
 
 
-if __name__ == '__main__':
+def initialize_app():
+    """Create tables and default settings. Safe to call repeatedly."""
     with app.app_context():
         db.create_all()
         ensure_settings()
 
+
+# Run on import so hosted WSGI servers (PythonAnywhere, gunicorn) get a ready database.
+initialize_app()
+
+
+if __name__ == '__main__':
     port = int(os.getenv('PORT', '5000'))
     ip = get_local_ip()
     print("=" * 60)
